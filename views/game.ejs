@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+</head>
+<body>
+    <h2>Memory Game</h2>
+    <h3>Welcome to the memory game! Each of the three buttons below is marked with the letter "A", "B", or "C".
+        You will see a sequence of letters displayed below as well when you start the game.<br>
+        After the sequence finishes, you will have to click the buttons in the right order to match the sequence.
+        If you miss a letter, you lose! The sequence will start short, but it grows longer each time you get it correct!</h3>
+
+    <div id="output">Press the start button to start the game!</div>
+    <div>
+        <button id="a" onclick="press('A')" disabled="true">A</button>
+        <button id="b" onclick="press('B')" disabled="true">B</button>
+        <button id="c" onclick="press('C')" disabled="true">C</button>
+    </div>
+    <button id="start" onclick="start()">Start!</button>
+    <div id="score"></div>
+    <script>
+        sequence = ''
+        index = 0
+        score = 0
+        output = document.getElementById('output')
+        scoreboard = document.getElementById('score')
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function toggle(buttonID) {
+            document.getElementById(buttonID).disabled = !(document.getElementById(buttonID).disabled)
+        }
+
+        function toggleLetters() {
+            for (let i = 0; i < 3; i++) {
+                toggle('abc'[i])
+            }
+        }
+
+        async function nextRound() {
+            scoreboard.innerHTML = `Score: ${score}`    
+            toggleLetters()     // disable all letter buttons
+            let letters = 'ABC'
+            sequence += letters[Math.floor(Math.random() * 3)]
+            output.innerHTML = '*'
+            await sleep(1000)
+            for (let i = 0; i < sequence.length; i++) {
+                output.style.color='white'
+                output.innerHTML = '*'
+                await sleep(100)
+                output.style.color='black'
+                output.innerHTML = sequence[i]
+                await sleep(1000)
+            }
+            index = 0
+            output.innerHTML = 'Enter sequence'
+            toggleLetters()     // enable all letter buttons
+        }
+
+        function start() {
+            toggle('start')     // disable
+            toggleLetters()     // enable all letter buttons
+            nextRound()
+        }
+
+        async function press(letter) {
+            if (sequence.length == 0) { return }
+            if (sequence[index] == letter) {
+                index += 1
+                if (index == sequence.length) {     // last letter in sequence so far
+                    score += 1
+                    output.innerHTML = 'Correct!'
+                    await sleep(1000)
+                    nextRound()
+                }
+            }
+            else {
+                reset()
+            }
+        }
+
+        async function reset() {
+            output.innerHTML = "Sorry, that's incorrect!"
+            toggleLetters()     // disable
+            await sleep(1000)
+            sequence = ''
+            index = 0
+            score = 0
+            output.innerHTML = 'Press the start button to start the game!'
+            toggle('start')     // enable
+        }
+
+        async function getInfo() {
+            let responseJSON = await fetch('http://127.0.0.1/highscores')
+            let response = await responseJSON.json()
+            let name = response.short_name
+            let fullName = response.full_name
+            let id = response.id
+            
+            console.log(name)
+            document.getElementById('greeting').innerHTML = $`Hello {name}! Welcome to my final project`
+        }
+    </script>
+</body>
+</html>
