@@ -2,4 +2,4 @@
 
 A simple game that tests the user's memory. Wait for the sequence of letters to be displayed, then recreate the sequence using the buttons on the page. Continue until you incorrectly enter a sequence!
 
-** Game requires TJHSST Intranet account login to play
+<sub> Game requires TJHSST Intranet account login to play </sub>
